@@ -1,0 +1,9 @@
+# Apprentissage de Rust
+
+L'idée de ce fil de pensée est de capitaliser sur le cheminement de l'apprentissage du langage Rust.
+Ce langage est pour ma part innovant sur 3 points :
+- la gestion particulière de la mémoire et les effets qui y sont liés
+- le fonctionnement uniquement par composition de traits qui n'est déjà plus orienté objet ( pas d'héritage )
+- l'utilisation de wrappers via des énumérations pour se passer de la non valeur NULL et proposer une gestion des erreurs intéressante
+
+

@@ -1,0 +1,64 @@
+# Current hypothesis
+
+The Entity holds informations on:
+- what class holds its projection
+- the field it needs from the database
+
+Each projection declare a `SQL definition` which is the SQL query that fetches
+the corresponding entity.
+
+```php
+<?php
+
+public function getSqlDefinition(Where $where): String
+{
+    $sql = "select {:projection:} from something where {:where:}";
+    $projection = $this->createProjection();
+    $sql = strtr(
+        $sql,
+        [
+            '{:projection:}' => (string) $projection,
+            '{:where:}       => (string) $where,
+        ]
+    );
+
+    return $sql;
+}
+```
+
+The projection is computed from the list of the fields that can be returned
+from the query and the fields that the entity expects.
+
+A more complex query involving nested entities can be:
+
+```php
+public function getSqlDefinition(Where $where): String
+{
+    $sql = <<<SQL
+with
+  parameters (my_pos, radius) as (values ($?, $?))
+select
+  {:projection:}
+from
+  bike_station
+  cross join parameters
+  left join lateral ({:measure_definition:}) as measure on true
+where
+  {:where:}
+SQL;
+
+    $projection = $this->createProjection();
+    $measure_def =  $this->getQueryModelFor(Measure::class)
+        ->getDefinition(Where::create("measure.station_id = bike_station_id"));
+    return strtr(
+        $sql,
+        [
+            '{:projection:}' => (string) $projection,
+            '{:measure_definition:}' => $measure_definition,
+            '{:where:}       => (string) $where,
+        ]
+    );
+}
+```
+
+

@@ -1,0 +1,15 @@
+La mémoire HEAP est gérée tout à fait différemment. Elle permet, contrairement à la stack, de stocker des éléments dont la taille n'est pas connue au départ mais au prix d'un mécanisme plus compliqué. La stack est toujours utilisée mais elle stocke cette fois un pointeur vers la heap. Le fait que le pointeur existe dans la stack indique à Rust que la variable existe. C'est le seul indicateur pour rust que cette variable existe. On peut dire que le mot clé “let” indique qu'il faut créer une nouvelle entrée dans la stack. 
+Le pointeur va indiquer un espace défini par le constructeur.
+
+Exemple:
+
+```
+let mut a = String::from("abc");        // 1:  8 = CP, PTR = 24
+let b = Box(12_u8);                     // 2: 16 = CP, PTR = 25
+a.push_str("def");                      // 3: 26 = CP, PTR = 25
+a.push_str("pika pika pika pika pika"); // 4: 26 = CP, PTR = 75
+```
+
+Dans l'exemple ci dessus, une chaîne de charactères est instanciée. 1: Un pointeur est créé dans la stack ( 8 octets ) et 25 octets de capacités sont alloués dans la heap. 2: un pointeur est créé vers un octet dans la heap via une `Box`. Il est placé juste après la chaîne de caractères. 3: on agrandit la chaîne de caractères en lui ajoutant 3 caractères. Comme la chaîne est en capacité de les stocker, cela ne change pas les allocation. 4: on alloue cette fois une chaîne plus grande que la capacité initiale de la chaîne. Rust est obligé de ré-allouer de la mémoire et de déplacer la structure dans la heap après la Box. Il est possible d'initialiser une chaîne avec plus de capacité dès l'instanciation via la fonction `with_capacity` et ainsi éviter la ré-alocation. 
+
+Cette façon de procéder avec la stack permet de savoir quand nettoyer la mémoire allouée dans la heap. Dès que le pointeur sort du scope, la mémoire qu'il pointe est nettoyée.

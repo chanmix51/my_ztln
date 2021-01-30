@@ -1,0 +1,15 @@
+# Pomm Model Manager
+
+This topic is about creating the new Model Manager for Pomm.
+Pomm's Model Manger is the software that allows developers to interact between their data structures and the database.
+The idea behind this is to make it easy for developers to shape their data directly from the database, using the power of PostgreSQL to do so.
+There was already a Model Manager with Pomm 2 and even though it was great, there were features that either were not used or were not well suited for the job.
+
+  - a Model class holds several queries generating often different sub classes of the same business entity
+  - it is difficult to use projection for nested entities
+  - the FlexibleContainer is almost never used
+
+Using DDD approach
+ - entities have to be agnostic and defined by the developer.
+ - Query with its projection must be crafted one per class.
+ - A projection can be embedded in another projection to nest entities.

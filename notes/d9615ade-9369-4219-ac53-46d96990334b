@@ -1,0 +1,34 @@
+On comprend que c'est la stack qui permet à Rust de savoir quelles sont les variables de son scope. Que se passe-t-il si on essaie de dupliquer les informations de la stack ?
+
+```
+let a = 8;
+let mut b = a;
+b = b + 2;
+
+println!("{} {}", a, b); // 8 10
+```
+
+Le code ci dessus compile car la taille de l'entier étant connue, la valeur est directement stockées dans la stack. Lors de l'assignation de b, la valeur est copiée et le pointeur de la stack avancé, a et b sont deux valeurs distinctes. Que se passe-t-il si l'expérience est retentée avec des valeurs stockées dans la heap ?
+
+```
+let a = Box::new(8);
+let mut b = a;
+b = Box::new(*b + 2);
+
+println!("{} {}", a, b); // 8 10?
+```
+```
+error[E0382]: borrow of moved value: `a`
+  --> src/main.rs:11:19
+   |
+7  | let a = Box::new(8);
+   |     - move occurs because `a` has type `Box<i32>`, which does not implement the `Copy` trait
+8  | let mut b = a;
+   |             - value moved here
+...
+11 | println!("{} {}", a, b); // 8 10
+   |                   ^ value borrowed here after move
+```
+
+Si la valeur de `a` ( le pointeur ) était copiée dans la stack alors il y aurait deux pointeurs vers la même zone mémoire. Cela compromettrait le système de nettoyage de mémoire et permettrait qu'il y ait des pointeurs vers des zones mémoires libérées ou encore des problèmes de verrouillage lors d'accès concourants. Pour cette raison, Rust interdit tout simplement d'avoir deux pointeurs vers une même zone de la heap. C'est la base du système de propriétaire de valeur ( *ownership* ). Dans son message d'erreur, le compilateur nous indique ici que puisqu'il ne sait pas copier cette valeur, écrire `let b = a` change le propriétaire de la valeur. Passé cette assignation, la variable `a` n'existe plus dans le scope car elle a été dépossédée de sa valeur, autrement dit : « Il y a un et un seul propriétaire pour chaque variable en mémoire pour Rust. » 
+

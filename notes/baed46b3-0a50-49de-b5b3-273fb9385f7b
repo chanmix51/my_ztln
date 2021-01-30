@@ -1,0 +1,40 @@
+# Variables référencées dans la pile ( stack )
+
+je pose l'hypothèse suivante :
+Les variables sont ajoutées à une pile gérée via des pointeurs :
+- SP pour stack pointer
+- CP context pointer
+
+SP permet de savoir où enregister la prochaine variable, elle est augmentée de la taille de la structure sauvée à chaque fois.
+CP permet de savoir où sont les ouvertures de scope. SP est sauvée dans CP à chaque ouverture et re poussée dans SP à chaque fermeture.
+
+Exemple 1 :
+
+```
+fn main() {             //  1:  0 = SP = CP
+    let a = 1;          //  2:  4 = SP (32 bits integer)
+    let b = 2;          //  3:  8 = SP
+    {                   //  4:  8 = CP
+        let a = 3;      //  5: 12 = SP
+        let c = a + b;  //  6: 15 = SP
+    }                   //  7:  8 = SP, 0 = CP
+    let c = a + b;      //  8: 12 = SP
+}                       //  9:  0 = SP
+```
+
+Exemple 2 :
+
+```
+fn add(a: i32, b: i32) -> i32 { // 3:  8 = CP, 16 = SP (parameters are copied!)
+    let c = a + b;              // 4: 20 = SP
+    c                           // 5:  0 = CP, 8 = SP, 
+}
+
+fn main() {
+    let a = 2;          //  1:  4 = SP
+    let b = 8;          //  2:  8 = SP
+    let c = add(a, b);  //  6: 12 = SP
+}
+```
+
+[site interactif](https://deepu.tech/memory-management-in-rust/) tout à fait intéressant sur la gestion de la mémoire en Rust.
